@@ -11,14 +11,14 @@ from utils.config import opt
 
 
 def decom_vgg16():
-    # the 30th layer of features is relu of conv5_3
     if opt.caffe_pretrain:
         model = vgg16(pretrained=False)
         if not opt.load_path:
             model.load_state_dict(t.load(opt.caffe_pretrain_path))
     else:
         model = vgg16(not opt.load_path)
-
+    # the 30th layer of features is relu of conv5_3
+    # it will use the 5th conv layer, but excludes ReLU and MaxPoll2d
     features = list(model.features)[:30]
     classifier = model.classifier
 

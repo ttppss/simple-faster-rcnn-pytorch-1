@@ -36,16 +36,16 @@ class FasterRCNN(nn.Module):
     Each stage is carried out by one of the callable
     :class:`torch.nn.Module` objects :obj:`feature`, :obj:`rpn` and :obj:`head`.
 
-    There are two functions :meth:`predict` and :meth:`__call__` to conduct
+    There are two functions :math:`predict` and :math:`__call__` to conduct
     object detection.
-    :meth:`predict` takes images and returns bounding boxes that are converted
+    :math:`predict` takes images and returns bounding boxes that are converted
     to image coordinates. This will be useful for a scenario when
     Faster R-CNN is treated as a black box function, for instance.
-    :meth:`__call__` is provided for a scnerario when intermediate outputs
+    :math:`__call__` is provided for a scenario when intermediate outputs
     are needed, for instance, for training and debugging.
 
-    Links that support obejct detection API have method :meth:`predict` with
-    the same interface. Please refer to :meth:`predict` for
+    Links that support object detection API have method :math:`predict` with
+    the same interface. Please refer to :math:`predict` for
     further details.
 
     .. [#] Shaoqing Ren, Kaiming He, Ross Girshick, Jian Sun. \
@@ -60,10 +60,10 @@ class FasterRCNN(nn.Module):
             Please refer to the documentation found there.
         head (nn.Module): A module that takes
             a BCHW variable, RoIs and batch indices for RoIs. This returns class
-            dependent localization paramters and class scores.
+            dependent localization parameters and class scores.
         loc_normalize_mean (tuple of four floats): Mean values of
             localization estimates.
-        loc_normalize_std (tupler of four floats): Standard deviation
+        loc_normalize_std (tuple of four floats): Standard deviation
             of localization estimates.
 
     """
@@ -90,7 +90,7 @@ class FasterRCNN(nn.Module):
     def forward(self, x, scale=1.):
         """Forward Faster R-CNN.
 
-        Scaling paramter :obj:`scale` is used by RPN to determine the
+        Scaling parameter :obj:`scale` is used by RPN to determine the
         threshold to select small objects, which are going to be
         rejected irrespective of their confidence scores.
 
@@ -139,7 +139,7 @@ class FasterRCNN(nn.Module):
         This method changes values of :obj:`self.nms_thresh` and
         :obj:`self.score_thresh`. These values are a threshold value
         used for non maximum suppression and a threshold value
-        to discard low confidence proposals in :meth:`predict`,
+        to discard low confidence proposals in :math:`predict`,
         respectively.
 
         If the attributes need to be changed to something
@@ -184,7 +184,7 @@ class FasterRCNN(nn.Module):
         return bbox, label, score
 
     @nograd
-    def predict(self, imgs,sizes=None,visualize=False):
+    def predict(self, imgs, sizes=None, visualize=False):
         """Detect objects from images.
 
         This method predicts objects for each image.
