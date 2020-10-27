@@ -62,7 +62,20 @@ def loc2bbox(src_bbox, loc):
     dx = loc[:, 1::4]
     dh = loc[:, 2::4]
     dw = loc[:, 3::4]
-
+    # usage of np.newaxis: https://stackoverflow.com/questions/29241056/how-does-numpy-newaxis-work-and-when-to-use-it
+    '''
+    example assisting understanding:
+    a = np.array([[1,2,3,4], [2,3,4,5], [3,4,5,6]])
+    c = a[:, 2] - a[:, 0]
+    # output: c: array([2, 2, 2])
+    d = c[:, np.newaxis]
+    # output: d: array([[2],
+    #                   [2],
+    #                   [2]])
+    d.shape: (3, 1)
+    
+    So by using np.newaxis, it changed the row vector to a column vector.
+    '''
     ctr_y = dy * src_height[:, xp.newaxis] + src_ctr_y[:, xp.newaxis]
     ctr_x = dx * src_width[:, xp.newaxis] + src_ctr_x[:, xp.newaxis]
     h = xp.exp(dh) * src_height[:, xp.newaxis]
