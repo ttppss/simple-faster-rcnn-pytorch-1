@@ -226,9 +226,11 @@ def generate_anchor_base(base_size=16, ratios=[0.5, 1, 2],
         :math:`(y_{min}, x_{min}, y_{max}, x_{max})` of a bounding box.
 
     """
+    # this is the coordinate of the center of the anchor
     py = base_size / 2.
     px = base_size / 2.
-
+    # there are 3 sizes of anchors, they are 16*8, 16*16, and 16*32 here.
+    # then base on these sizes, we have 3 rations for each size.
     anchor_base = np.zeros((len(ratios) * len(anchor_scales), 4),
                            dtype=np.float32)
     for i in six.moves.range(len(ratios)):
@@ -236,6 +238,9 @@ def generate_anchor_base(base_size=16, ratios=[0.5, 1, 2],
             h = base_size * anchor_scales[j] * np.sqrt(ratios[i])
             w = base_size * anchor_scales[j] * np.sqrt(1. / ratios[i])
 
+            # ratio 0.5, 3 rows, one scale per row;
+            # ratio 1, 3 rows, one scale per row;
+            # ratio 2, 3 rows, one scale per row;
             index = i * len(anchor_scales) + j
             anchor_base[index, 0] = py - h / 2.
             anchor_base[index, 1] = px - w / 2.

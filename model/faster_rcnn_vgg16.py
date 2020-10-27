@@ -18,7 +18,7 @@ def decom_vgg16():
     else:
         model = vgg16(not opt.load_path)
     # the 30th layer of features is relu of conv5_3
-    # it will use the 5th conv layer, but excludes ReLU and MaxPoll2d
+    # it will use the 5th conv layer, but excludes ReLU and MaxPoll2d, that's why the feat_stride is 16 not 32;
     features = list(model.features)[:30]
     classifier = model.classifier
 

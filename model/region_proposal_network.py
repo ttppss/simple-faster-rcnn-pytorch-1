@@ -43,6 +43,8 @@ class RegionProposalNetwork(nn.Module):
 
     def __init__(
             self, in_channels=512, mid_channels=512, ratios=[0.5, 1, 2],
+            # the anchor_scales are the edge length, not the area of the anchor. In order to get the
+            # area of the anchor, take the square of it (8^2, 16^2, 32^2).
             anchor_scales=[8, 16, 32], feat_stride=16,
             proposal_creator_params=dict(),
     ):
