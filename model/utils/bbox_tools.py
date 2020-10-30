@@ -9,7 +9,7 @@ def loc2bbox(src_bbox, loc):
     """Decode bounding boxes from bounding box offsets and scales.
 
     Given bounding box offsets and scales computed by
-    :meth:`bbox2loc`, this function decodes the representation to
+    :math:`bbox2loc`, this function decodes the representation to
     coordinates in 2D image coordinates.
 
     Given scales and offsets :math:`t_y, t_x, t_h, t_w` and a bounding
@@ -63,7 +63,7 @@ def loc2bbox(src_bbox, loc):
     dh = loc[:, 2::4]
     dw = loc[:, 3::4]
     # usage of np.newaxis: https://stackoverflow.com/questions/29241056/how-does-numpy-newaxis-work-and-when-to-use-it
-    '''
+    ''' my comment
     example assisting understanding:
     a = np.array([[1,2,3,4], [2,3,4,5], [3,4,5,6]])
     c = a[:, 2] - a[:, 0]
@@ -95,7 +95,7 @@ def bbox2loc(src_bbox, dst_bbox):
 
     Given bounding boxes, this function computes offsets and scales
     to match the source bounding boxes to the target bounding boxes.
-    Mathematcially, given a bounding box whose center is
+    Mathematically, given a bounding box whose center is
     :math:`(y, x) = p_y, p_x` and
     size :math:`p_h, p_w` and the target bounding box whose center is
     :math:`g_y, g_x` and size :math:`g_h, g_w`, the offsets and scales
@@ -124,11 +124,10 @@ def bbox2loc(src_bbox, dst_bbox):
             :math:`g_{ymin}, g_{xmin}, g_{ymax}, g_{xmax}`.
 
     Returns:
-        array:
-        Bounding box offsets and scales from :obj:`src_bbox` \
-        to :obj:`dst_bbox`. \
-        This has shape :math:`(R, 4)`.
-        The second axis contains four values :math:`t_y, t_x, t_h, t_w`.
+        array: Bounding box offsets and scales from :obj:`src_bbox`
+            to :obj:`dst_bbox`.
+            This has shape :math:`(R, 4)`.
+            The second axis contains four values :math:`t_y, t_x, t_h, t_w`.
 
     """
 

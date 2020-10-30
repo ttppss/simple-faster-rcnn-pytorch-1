@@ -397,10 +397,10 @@ class ProposalCreator:
         roi = loc2bbox(anchor, loc)
 
         # Clip predicted boxes to image.
-        roi[:, slice(0, 4, 2)] = np.clip(
-            roi[:, slice(0, 4, 2)], 0, img_size[0])
-        roi[:, slice(1, 4, 2)] = np.clip(
-            roi[:, slice(1, 4, 2)], 0, img_size[1])
+        ### the example usage of slice: https://www.w3schools.com/python/ref_func_slice.asp
+        ### clip the bbox with the image, make sure it is within the range of 0 to imagesize(width or height)
+        roi[:, slice(0, 4, 2)] = np.clip(roi[:, slice(0, 4, 2)], 0, img_size[0])
+        roi[:, slice(1, 4, 2)] = np.clip(roi[:, slice(1, 4, 2)], 0, img_size[1])
 
         # Remove predicted boxes with either height or width < threshold.
         min_size = self.min_size * scale
@@ -412,6 +412,18 @@ class ProposalCreator:
 
         # Sort all (proposal, score) pairs by score from highest to lowest.
         # Take top pre_nms_topN (e.g. 6000).
+
+        # ravel: https://numpy.org/doc/stable/reference/generated/numpy.ravel.html
+        # example: x = np.array([[1, 2, 3], [4, 5, 6]])
+        #          np.ravel(x)
+        #          array([1, 2, 3, 4, 5, 6])
+
+        # [::-1]: sort in reverse order
+        # example:
+        # L[::-1]
+        # [9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+
+        # argsort returns the index
         order = score.ravel().argsort()[::-1]
         if n_pre_nms > 0:
             order = order[:n_pre_nms]
@@ -421,7 +433,7 @@ class ProposalCreator:
         # Apply nms (e.g. threshold = 0.7).
         # Take after_nms_topN (e.g. 300).
 
-        # unNOTE: somthing is wrong here!
+        # unNOTE: something is wrong here!
         # TODO: remove cuda.to_gpu
         keep = nms(
             torch.from_numpy(roi).cuda(),
