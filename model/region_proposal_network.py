@@ -54,8 +54,11 @@ class RegionProposalNetwork(nn.Module):
         self.feat_stride = feat_stride
         self.proposal_layer = ProposalCreator(self, **proposal_creator_params)
         n_anchor = self.anchor_base.shape[0]
+        # first conv layer before send into RPN
         self.conv1 = nn.Conv2d(in_channels, mid_channels, 3, 1, 1)
+        # the 1 by 1 conv layer of score
         self.score = nn.Conv2d(mid_channels, n_anchor * 2, 1, 1, 0)
+        # the 1 by 1 conv layer of bbox regression
         self.loc = nn.Conv2d(mid_channels, n_anchor * 4, 1, 1, 0)
         normal_init(self.conv1, 0, 0.01)
         normal_init(self.score, 0, 0.01)
@@ -107,11 +110,16 @@ class RegionProposalNetwork(nn.Module):
 
         n_anchor = anchor.shape[0] // (hh * ww)
         h = F.relu(self.conv1(x))
-
+        # size of (batch_number, n_anchor * 4, hh, ww), because self.loc only changed the number of channels,
+        # but width and height stays the same.
         rpn_locs = self.loc(h)
         # UNNOTE: check whether need contiguous
         # A: Yes
+
+        # Must use .contiguous() before .view() or .permute()
         rpn_locs = rpn_locs.permute(0, 2, 3, 1).contiguous().view(n, -1, 4)
+
+        # shape (batch_number, n_anchor * 2, height, width)
         rpn_scores = self.score(h)
         rpn_scores = rpn_scores.permute(0, 2, 3, 1).contiguous()
         rpn_softmax_scores = F.softmax(rpn_scores.view(n, hh, ww, n_anchor, 2), dim=4)
@@ -152,11 +160,20 @@ def _enumerate_shifted_anchor(anchor_base, feat_stride, height, width):
     shift_y = xp.arange(0, height * feat_stride, feat_stride)
     shift_x = xp.arange(0, width * feat_stride, feat_stride)
     shift_x, shift_y = xp.meshgrid(shift_x, shift_y)
+    # stacked shift_x and shift_y twice, because we need to add the shift to x_min and x_max, then y_min and y_max
+    # which correspond to the 1th and 3th coordinate in anchor_base, and 0th and 2th coordinate of the anchor_base.
     shift = xp.stack((shift_y.ravel(), shift_x.ravel(),
                       shift_y.ravel(), shift_x.ravel()), axis=1)
-
+    # anchor_base is of shape (9, 4)
     A = anchor_base.shape[0]
     K = shift.shape[0]
+    # we have K points on the map, for each point, we need to generate A anchors
+    # in order to generate the anchors, we need to add the coordinate of the points (in 'shift') and the coordinate of
+    # the anchor center (in 'anchor_base').
+    # ymin + shifty, y_max + shifty, xmin + shiftx, xmax + shiftx.
+    # think about it !!!
+
+    # 两个数组要么在某一个维度的长度一致，要么其中一个为1，否则不能计算broadcast
     anchor = anchor_base.reshape((1, A, 4)) + \
              shift.reshape((1, K, 4)).transpose((1, 0, 2))
     anchor = anchor.reshape((K * A, 4)).astype(np.float32)
