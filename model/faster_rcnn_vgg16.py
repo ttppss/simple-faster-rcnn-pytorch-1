@@ -63,6 +63,14 @@ class FasterRCNNVGG16(FasterRCNN):
                  
         extractor, classifier = decom_vgg16()
 
+        # classifier:
+        # Sequential(
+        #     (0): Linear(in_features=25088, out_features=4096, bias=True)
+        #     (1): ReLU(inplace)
+        #     (2): Linear(in_features=4096, out_features=4096, bias=True)
+        #     (3): ReLU(inplace)
+        # )
+
         rpn = RegionProposalNetwork(
             512, 512,
             ratios=ratios,
@@ -70,12 +78,31 @@ class FasterRCNNVGG16(FasterRCNN):
             feat_stride=self.feat_stride,
         )
 
+        # print(rpn)
+        # RegionProposalNetwork(
+        #     (conv1): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+        #     (score): Conv2d(512, 18, kernel_size=(1, 1), stride=(1, 1))
+        #     (loc): Conv2d(512, 36, kernel_size=(1, 1), stride=(1, 1))
+        # )
+
         head = VGG16RoIHead(
             n_class=n_fg_class + 1,
             roi_size=7,
             spatial_scale=(1. / self.feat_stride),
             classifier=classifier
         )
+
+        # VGG16RoIHead(
+        # (classifier): Sequential(
+        #     (0): Linear(in_features=25088, out_features=4096, bias=True)
+        #     (1): ReLU(inplace)
+        #     (2): Linear(in_features=4096, out_features=4096, bias=True)
+        #     (3): ReLU(inplace)
+        #     )
+        # (cls_loc): Linear(in_features=4096, out_features=84, bias=True)
+        #     (score): Linear(in_features=4096, out_features=21, bias=True)
+        #     (roi): RoIPooling2D()
+        #     )
 
         super(FasterRCNNVGG16, self).__init__(
             extractor,
@@ -140,6 +167,7 @@ class VGG16RoIHead(nn.Module):
         xy_indices_and_rois = indices_and_rois[:, [0, 2, 1, 4, 3]]
         indices_and_rois =  xy_indices_and_rois.contiguous()
 
+        # https://pytorch.org/docs/stable/_modules/torchvision/ops/roi_pool.html#RoIPool
         pool = self.roi(x, indices_and_rois)
         pool = pool.view(pool.size(0), -1)
         fc7 = self.classifier(pool)
